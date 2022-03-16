@@ -12,6 +12,8 @@ import Model.OrderedItem;
 import Model.Product;
 import View.*;
 
+import java.io.Console;
+
 public class Controller {
     private Cart cart;
     private Account loggedInAccount;
@@ -19,10 +21,12 @@ public class Controller {
     private LoginWindow loginWindow;
     private RegisterWindow registerWindow;
     private DBCInterface dbc;
+    private ConsoleView cView;
 
-    public Controller(){
+    public Controller() throws Exception {
         dbc = new DBCInterface();
-        consoleView = new ConsoleTest();
+        //consoleView = new ConsoleTest();
+        cView = new ConsoleView(this, dbc);
     }
 
     // ----- Call Backs ------ //
@@ -46,6 +50,9 @@ public class Controller {
         catch (Exception e){
             e.printStackTrace();
         }
+    }
+    public Cart getCart(){
+        return cart;
     }
 
     public void registerAccountPressed(){
