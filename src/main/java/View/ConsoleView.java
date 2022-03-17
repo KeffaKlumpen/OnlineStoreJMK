@@ -9,7 +9,6 @@ import java.util.Scanner;
 public class ConsoleView {
     private Controller controller;
     private DBCInterface db;
-    //String controller = "";
     public ConsoleView(Controller controller, DBCInterface db) throws Exception {
         this.controller = controller;
         this.db = db;
@@ -37,24 +36,33 @@ public class ConsoleView {
         System.out.println("0: Quit");
         int choice = -1;
         while(choice != 0){
-            choice = readInt();
+            //choice = readInt();
+            choice = 4;
             switch (choice){
                 case 1:
                     controller.loginPressed();
-                    System.out.println(controller.getLoggedInAccount());
+                    System.out.println("Current account: " + controller.getLoggedInAccount());
+                    if (controller.getLoggedInAccount() != null) {
+                        if (controller.getLoggedInAccount().isAdmin()){
+                            adminMenu();
+                        }else{
+                            customerMenu();
+                        }
+                    } else {
+                        System.out.println("User not found..");
+                    }
                     break;
                 case 2:
-                    //Continue as guest
-                    printDefaultMenu();
+                    guestMenu();
                     break;
                 case 3:
-                    //Register account
-                    register();     //todo
+                    register();
                     break;
                 case 4:
                     //Used for debugging currently
-                    //adminMenu();
-                    customerMenu();
+                    adminMenu();
+                    //customerMenu();
+                    //mainMenu();
                     break;
                 default:
                     System.out.println("Invalid choice, try again");
@@ -63,15 +71,6 @@ public class ConsoleView {
         }
     }
 
-    public void menuTwo(){      //Admin
-
-    }
-    public void menuThree(){    //Customer
-
-    }
-    public void menuFour(){     //Guest
-
-    }
     public void register() throws Exception {
         System.out.println("Enter name:");
         String name = readString();
@@ -96,25 +95,27 @@ public class ConsoleView {
         db.registerAccount(name, email, street, city, country, phoneNbr, isAdmin);
     }
     public void adminMenu() throws Exception {
-        System.out.println("Do stuff admin");
-
+        System.out.println("Do stuff as admin!\n");
 
         System.out.println("What do u want to do?");
         System.out.println("0: Log out");
-        System.out.println("1: Set quantity");
-        System.out.println("2: Get new orders");
-        System.out.println("3: Confirm order");
-        System.out.println("4: Remove order");
-        System.out.println("5: Get account by e-mail");
-        System.out.println("6: Update quantity of ordered products");
-        System.out.println("7: View discounted products");        //Currently discounted?
+        System.out.println("1: Set quantity                             (Klar!)");
+        System.out.println("2: Get new orders                           (Klar!)");
+        System.out.println("3: Confirm order                            (Klar!)");
+        System.out.println("4: Remove unconfirmed order                 (Klar!)");
+        System.out.println("5: Get account by e-mail                    (Klar!)");
+        System.out.println("6: Update quantity of ordered product       (Ej klar)");             //todo
+        System.out.println("7: View discounted products");        //Currently discounted?        //todo
+        System.out.println("8: Add a new product to the store           (Klar!)");
+        System.out.println("9: Delete an item that has yet to be sold");                         //todo
 
         int choice = readInt();
 
         switch (choice){
             case 0:
-                //Log out, needed?
-                //logOut();
+                controller.logOutUser();
+                System.out.println("Logged out!");
+                mainMenu();
                 break;
             case 1:
                 //Change quantity of product chosen by ID
@@ -125,9 +126,7 @@ public class ConsoleView {
                 db.setQuantity(inputID, quantity);
                 break;
             case 2:
-                //Get unconfirmed orders
-
-                db.getUnconfirmedOrders();
+                controller.showUnconfirmedOrdersPressed();
                 break;
             case 3:
                 //Print orders and enter ID to confirm
@@ -148,10 +147,11 @@ public class ConsoleView {
                 //Behövs getAccount(int account_id) användas?
                 System.out.println("Enter email to search for: ");
                 String targetMail = readString();
-                db.getAccount(targetMail);
+                System.out.println(db.getAccount(targetMail));
                 break;
-            case 6:
+            case 6:     //TODO Testa mer. Funkar denna verkligen?
                 //TODO tf_update_product_quantity() kastar Exception. Fix or delete trigger?
+                //Se gärna över denna. Jag är liiite osäker på exakt vad dess syfte är //måns
                 //Update quantity of ordered products
                 System.out.println("Enter product ID:");
                 int chosenID = readInt();
@@ -159,10 +159,18 @@ public class ConsoleView {
                 int newQuantity = readInt();
                 System.out.println("Enter order ID");
                 int orderID = readInt();
-                db.updateQuantityOfOrderedProduct(chosenID, newQuantity, orderID);
+                controller.updateOrderQuantityPressed(chosenID, newQuantity, orderID);
             case 7:
                 //discount
-                printDiscountMenu();
+                controller.showCurrentlyDiscountedProductsPressed();
+            case 8:
+                //add a new item to the store
+                controller.addProductPressed();
+                break;
+            case 9:
+                //remove a product that hasn't been sold yet
+                controller.removeProductPressed();
+                break;
             case 10:
                 //placeOrder(), Behövs denna metoden? Se kommentar i DBCInterface
                 break;
@@ -176,45 +184,6 @@ public class ConsoleView {
         System.out.println("1: Add discount (With code and reason");
         System.out.println("2: todo");
     }
-
-    public void printDefaultMenu() throws Exception {     //Denna ska bort yes? Byts ut mot startMenu()
-        int choice = readInt();
-        System.out.println("What do u want to do?");
-        System.out.println("0: Log in");
-        System.out.println("1: Show all products");
-        System.out.println("2: Something else");
-
-        choice = readInt();
-
-        switch (choice){
-            case 0:
-                //db.login();
-                printDefaultMenu();
-            case 1:
-                db.getAllProducts(" ", " ", " ", Double.MIN_VALUE, Double.MAX_VALUE);
-
-                printDefaultMenu();
-            case 2:
-                //Do stuff
-                break;
-            case 3:
-                //Do stuff
-                break;
-            case 4:
-                //Do stuff
-                break;
-            case 5:
-                //Do stuff
-                break;
-            case 6:
-                //Do stuff
-                break;
-
-
-        }
-        printDefaultMenu();
-
-    }
     public void guestMenu(){
         System.out.println("What do u want to do");
         System.out.println("1: View top sellers by year and month");
@@ -223,15 +192,15 @@ public class ConsoleView {
 
     public void customerMenu() throws Exception {
         int choice = -1;
-        System.out.println("Do stuff customer");
+        System.out.println("Do stuff as a customer\n");
 
         System.out.println("What do u want to do?");
-        System.out.println("0: Log out");
+        System.out.println("0: Log out                              (Klar!");
         System.out.println("1: View all available products          (Typ klar?)");
         System.out.println("2: View all discounted products");
         System.out.println("3: Search products by ID                (Klar!)");
         System.out.println("4: View cart");
-        System.out.println("5: Select item to add to cart");        //TODO Gör detta först
+        System.out.println("5: Select item to add to cart");        //TODO
         System.out.println("6: Finish shopping");
         System.out.println("8: Admin menu");
 
@@ -240,7 +209,9 @@ public class ConsoleView {
         while (choice != -1) {
             switch (choice){
                 case 0:
-                    //db.logOut();
+                    controller.logOutUser();
+                    System.out.println("Logged out!");
+                    mainMenu();
                     break;
                 case 1:
                     System.out.println("Trying to get available products...");
@@ -284,5 +255,9 @@ public class ConsoleView {
             choice = readInt();
         }
 
+    }
+
+    public void showMessage(String s) {
+        System.out.println(s);
     }
 }

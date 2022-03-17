@@ -49,42 +49,6 @@ public class DBCInterface {
 
     //// API ////
 
-    //TODO Läs och räkna ut slutpris efter discount och fixa snyggare utskrift //Måns
-    public String[] getAllAvailableProducts() throws SQLException {
-        Connection con = getDataBaseConnection();
-        Statement stmt = con.createStatement();
-        String QUERY = String.format("Select * from product where quantity > 0");
-
-        ResultSet rs = stmt.executeQuery(QUERY);
-        ArrayList<String> table = new ArrayList<>();
-
-        while (rs.next()){
-            String row = "";
-
-            // product
-            row += String.format("%d|", rs.getInt("id"));           // product_id
-            row += String.format("%s|", rs.getString("name"));      // product_name
-            row += String.format("%s|", rs.getString("type"));      // product_type
-            row += String.format("%d|", rs.getInt("quantity"));
-            row += String.format("%f|", rs.getFloat("baseprice"));
-
-            // discounted_product & discount
-            //row += String.format("%d|", rs.getInt("percentage"));
-            //row += String.format("%s|", rs.getString("discount_code"));
-            //row += String.format("%f|", rs.getFloat("discount_amount"));
-            //row += String.format("%f|", rs.getFloat("final_price"));
-
-            // supplier
-            row += String.format("%d|", rs.getInt("supplier_id"));
-            //row += String.format("%s", rs.getString("supplier_name"));        //nyckla skiten?
-
-            table.add(row);
-        }
-
-
-
-        return table.toArray(new String[0]);
-    }
     // Product
     public String[] getAvailableProducts(String product_name, String product_type, String supplier_name, double minPrice, double maxPrice) throws Exception{
         Connection con = getDataBaseConnection();
@@ -124,9 +88,11 @@ public class DBCInterface {
     public String[] getCurrentlyDiscountedProducts(String product_name, String product_type, String supplier_name, double minPrice, double maxPrice) throws Exception{
         Connection con = getDataBaseConnection();
         Statement stmt = con.createStatement();
-        //String QUERY = String.format("SELECT * FROM f_currently_discounted_products('%s', '%s', '%s', %f, %f);",
-         //       product_name, product_type, supplier_name, minPrice, maxPrice);
-        String QUERY = "f_currently_discounted_products('name', 'type', 'supp name', 0, 10)";
+
+        //TODO
+        String QUERY = String.format("SELECT * FROM f_currently_discounted_products('%s', '%s', '%s', %f, %f);",
+              product_name, product_type, supplier_name, minPrice, maxPrice);
+        //String QUERY = "select * from discounted_product";
         ResultSet rs = stmt.executeQuery(QUERY);
 
         ArrayList<String> table = new ArrayList<>();
@@ -243,6 +209,11 @@ public class DBCInterface {
         }
 
         return table.toArray(new String[0]);
+    }
+    public void removeUnsoldProduct() throws SQLException {
+        Connection con = getDataBaseConnection();
+        Statement stmnt = con.createStatement();
+        //String QUERY = String.format("DELETE from product where bla bla bla") //todo
     }
 
     // Get the most ordered products during the specified month.
@@ -492,12 +463,12 @@ public class DBCInterface {
             String QUERY = String.format("UPDATE orders SET confirmed = %b WHERE id = %d;", confirmStatus, order_id);
         stmt.execute(QUERY);
     }
-    // TODO: Untested java
+
     public void removeOrder(int order_id) throws Exception{
         Connection con = getDataBaseConnection();
         Statement stmt = con.createStatement();
         String QUERY = String.format("DELETE from orders where id = %d;", order_id);
-        stmt.executeQuery(QUERY);
+        stmt.execute(QUERY);
     }
 
     // Account

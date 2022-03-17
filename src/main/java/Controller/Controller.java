@@ -13,6 +13,7 @@ import Model.Product;
 import View.*;
 
 import java.util.Arrays;
+import java.util.Scanner;
 
 
 public class Controller {
@@ -38,15 +39,24 @@ public class Controller {
         registerWindow = new RegisterWindow(this);
     }
 
-    public void loginPressed(){
-        String email = loginWindow.getEmail();
+
+    public void loginPressed() {
+        //TODO Läs input i ui, inte här
+        System.out.println("Write your email");
+        Scanner scanner = new Scanner(System.in);
+        String email = scanner.nextLine();
+        System.out.println("Email entered is: " + email);
+
         try{
-            String dbData = dbc.getAccount(email);
-            String[] accountData = splitRow(dbData);
+            //if (email.equals(dbc.getAccount(email).)){       //If satsen suger
+            if(dbc.getAccount(email) != null){
+                String dbData = dbc.getAccount(email);
+                String[] accountData = splitRow(dbData);
+                tryLogin(accountData);
 
-            consoleView.showMessage("account retrieved.");
-
-            tryLogin(accountData);
+            }else{
+                System.out.println("user does not exist!");
+            }
         }
         catch (Exception e){
             e.printStackTrace();
@@ -192,10 +202,10 @@ public class Controller {
             consoleView.showError("Must be logged in to place order.");
         }
     }
-    public void updateOrderQuantityPressed(){
-        int product_id = consoleView.getID(); // selected product in list..
-        int quantity = consoleView.getInteger();
-        int order_id = consoleView.getID(); // currently viewed order..
+    public void updateOrderQuantityPressed(int product_id, int quantity, int order_id){
+        //int product_id = consoleView.getID(); // selected product in list..
+        //int quantity = consoleView.getInteger();
+        //int order_id = consoleView.getID(); // currently viewed order..
         try{
             dbc.updateQuantityOfOrderedProduct(product_id, quantity, order_id);
             showOrderInfo(order_id);
@@ -217,6 +227,7 @@ public class Controller {
     public void showMyOrdersPressed(){
         showOrders(loggedInAccount.getId());
     }
+
 
     // ADMIN
     public void addProductPressed(){
@@ -262,7 +273,10 @@ public class Controller {
             // view.setOrderList = table;
             // view.setCategorySelection = order..
             for (String row: table) {
-                consoleView.showMessage(row);
+                //consoleView.showMessage(row);
+                System.out.println(row);
+                //cView.showMessage(row);       //Todo flytta utskriften hit...varför i hela fan är cview null?
+
             }
         }
         catch (Exception e){
@@ -304,7 +318,7 @@ public class Controller {
         }
     }
     public Account getLoggedInAccount(){
-        return null;
+        return loggedInAccount;
     }
     public void showSuppliersPressed(){
         try{
@@ -386,7 +400,8 @@ public class Controller {
             String[] table = dbc.getCustomersOrders(customer_id);
 
             for (String row: table) {
-                consoleView.showMessage(row);
+                //consoleView.showMessage(row);
+                System.out.println(row);
             }
         }
         catch (Exception e){
@@ -417,8 +432,11 @@ public class Controller {
         return dbc;
     }
 
-
-    private Account tryLogin(String[] accountData){
+    /*
+    Just nu blir accountData tom ifall input email inte finns i databas. Fix this
+     */
+            //v1
+   /* private Account tryLogin(String[] accountData){
         Account account = new Account();
         try {
             account.setId(Integer.parseInt(accountData[0]));
@@ -431,7 +449,32 @@ public class Controller {
 
         loginAccount(account);
         return account;
+    }*/
+
+    //v2
+    private void tryLogin(String[] accountData){
+        Account account = new Account();
+
+        System.out.println(Arrays.toString(accountData));
+
+
+        if (accountData.length > 1) {      //if true, user was found
+            try {
+                account.setId(Integer.parseInt(accountData[0]));
+                account.setEmail(accountData[2]);
+                account.setAdminStatus(Boolean.parseBoolean(accountData[7]));
+
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+
+            loginAccount(account);
+        }else{
+            System.out.println("User not found");
+        }
+
     }
+
 
 
     private void loginAccount(Account account){
@@ -442,7 +485,8 @@ public class Controller {
         {
             loginStatus = true;
             adminStatus = loggedInAccount.isAdmin();
-            consoleView.showMessage("Login ok for " + loggedInAccount.getEmail());
+            //cView.showMessage("Login ok for " + loggedInAccount.getEmail());
+            System.out.println("Login ok for " + loggedInAccount.getEmail());
         }
 
         // update views..
@@ -453,5 +497,9 @@ public class Controller {
 
     private String[] splitRow(String row){
         return row.split("\\|"); //escape regex magic.. splits on '|'
+    }
+
+    public void logOutUser() {
+        loggedInAccount = null;
     }
 }
