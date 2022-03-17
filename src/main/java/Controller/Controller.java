@@ -432,31 +432,11 @@ public class Controller {
         return dbc;
     }
 
-    /*
-    Just nu blir accountData tom ifall input email inte finns i databas. Fix this
-     */
-            //v1
-   /* private Account tryLogin(String[] accountData){
-        Account account = new Account();
-        try {
-            account.setId(Integer.parseInt(accountData[0]));
-            account.setEmail(accountData[2]);
-            account.setAdminStatus(Boolean.parseBoolean(accountData[7]));
-        }
-        catch (Exception e){
-            e.printStackTrace();
-        }
 
-        loginAccount(account);
-        return account;
-    }*/
-
-    //v2
     private void tryLogin(String[] accountData){
         Account account = new Account();
 
         System.out.println(Arrays.toString(accountData));
-
 
         if (accountData.length > 1) {      //if true, user was found
             try {
