@@ -85,7 +85,7 @@ public class Cart {
     public String[] getCartStrings(){
         ArrayList<String> strings = new ArrayList<>();
         for (OrderedItem item: orderedItems) {
-            strings.add(item.toString());
+            strings.add(item.toString());                   //VARFÖR ÄR DU NULL ITEMJÄVEL
         }
         return strings.toArray(new String[0]);
     }

@@ -13,7 +13,7 @@ public class ConsoleView {
     public ConsoleView(Controller controller, DBCInterface db) throws Exception {
         this.controller = controller;
         this.db = db;
-        menuOne();
+        mainMenu();
     }
 
     public int readInt(){
@@ -28,7 +28,7 @@ public class ConsoleView {
         return strOut;
     }
 
-    public void menuOne() throws Exception {
+    public void mainMenu() throws Exception {
         System.out.println("What do u want to do?");
         System.out.println("1: Log in");
         System.out.println("2: Continue as guest");
@@ -40,7 +40,8 @@ public class ConsoleView {
             choice = readInt();
             switch (choice){
                 case 1:
-                    //login
+                    controller.loginPressed();
+                    System.out.println(controller.getLoggedInAccount());
                     break;
                 case 2:
                     //Continue as guest
@@ -48,7 +49,7 @@ public class ConsoleView {
                     break;
                 case 3:
                     //Register account
-                    register();
+                    register();     //todo
                     break;
                 case 4:
                     //Used for debugging currently
@@ -60,8 +61,8 @@ public class ConsoleView {
                     break;
             }
         }
-
     }
+
     public void menuTwo(){      //Admin
 
     }
@@ -74,8 +75,6 @@ public class ConsoleView {
     public void register() throws Exception {
         System.out.println("Enter name:");
         String name = readString();
-        //System.out.println("Enter password");
-        //String userPassword = readString();
         System.out.println("Enter email");
         String email = readString();
         System.out.println("Enter street");
@@ -89,6 +88,7 @@ public class ConsoleView {
         System.out.println("***************************");
 
 
+
         System.out.println("Press 1 to register as customer, 2 to register as admin");
         int choice = readInt();
         boolean isAdmin = (choice == 2);
@@ -97,6 +97,7 @@ public class ConsoleView {
     }
     public void adminMenu() throws Exception {
         System.out.println("Do stuff admin");
+
 
         System.out.println("What do u want to do?");
         System.out.println("0: Log out");
@@ -107,6 +108,7 @@ public class ConsoleView {
         System.out.println("5: Get account by e-mail");
         System.out.println("6: Update quantity of ordered products");
         System.out.println("7: View discounted products");        //Currently discounted?
+
         int choice = readInt();
 
         switch (choice){
@@ -164,6 +166,7 @@ public class ConsoleView {
             case 10:
                 //placeOrder(), Behövs denna metoden? Se kommentar i DBCInterface
                 break;
+
             default:
                 break;
         }
@@ -207,6 +210,7 @@ public class ConsoleView {
                 //Do stuff
                 break;
 
+
         }
         printDefaultMenu();
 
@@ -223,44 +227,61 @@ public class ConsoleView {
 
         System.out.println("What do u want to do?");
         System.out.println("0: Log out");
-        System.out.println("1: View all available products");
+        System.out.println("1: View all available products          (Typ klar?)");
         System.out.println("2: View all discounted products");
-        System.out.println("3: Search products by ID");
+        System.out.println("3: Search products by ID                (Klar!)");
         System.out.println("4: View cart");
-        System.out.println("5: Select item to add to cart");
+        System.out.println("5: Select item to add to cart");        //TODO Gör detta först
         System.out.println("6: Finish shopping");
+        System.out.println("8: Admin menu");
 
         choice = readInt();
 
-        switch (choice){
-            case 0:
-                //db.logOut();
-                break;
-            case 1:
-                db.getAvailableProducts("", "", "", Integer.MIN_VALUE, Integer.MAX_VALUE);
-                break;
-            case 2:
-                db.getCurrentlyDiscountedProducts("", "", "", Integer.MIN_VALUE, Integer.MAX_VALUE);
-                break;
-            case 3:
-                System.out.println("Enter ID to search for");
-                int inputID = readInt();
-                System.out.print(db.getProductByID(inputID));
-                break;
-            case 4:     //print cart
-                controller.getCart().getCartStrings();
-                break;
-            case 5:
-                //print cart
-                //cart.add(id, quantity)
-                db.getAvailableProducts("", "", "", Integer.MIN_VALUE, Integer.MAX_VALUE);
-                int idToAdd = readInt();
-                int chosenQuantity = readInt();
-                controller.getCart().addToCart(idToAdd, chosenQuantity);
-            case 6:
-                //TODO check out
-                break;
-
+        while (choice != -1) {
+            switch (choice){
+                case 0:
+                    //db.logOut();
+                    break;
+                case 1:
+                    System.out.println("Trying to get available products...");
+                    System.out.println(Arrays.toString(controller.showAllSelected("", "", "", Float.MIN_VALUE, Float.MAX_VALUE)));
+                    //db.getAvailableProducts("", "", "", Integer.MIN_VALUE, Integer.MAX_VALUE);    //Denna funkar ej, "function now found" - Troligtvis pga fel datatyp som parameter (unknown säger java)
+                    //System.out.println(Arrays.toString(db.getAllAvailableProducts()));      //Denna funkar men känns fel
+                    break;
+                case 2:     //TODO
+                    db.getCurrentlyDiscountedProducts("a", "a", "a" , Integer.MIN_VALUE, Integer.MAX_VALUE);
+                    break;
+                case 3:
+                    System.out.println("Enter ID to search for");
+                    int inputID = readInt();
+                    System.out.print(db.getProductByID(inputID));
+                    break;
+                case 4:     //print cart
+                    if (controller.getCart() != null){
+                        controller.getCart().getCartStrings();
+                    }else{
+                        System.out.println("Cart is empty!");
+                    }
+                    break;
+                case 5:     //Add to cart
+                    //print cart
+                    //cart.add(id, quantity)
+                    System.out.println(Arrays.toString(controller.showAllSelected("", "", "", Float.MIN_VALUE, Float.MAX_VALUE)));
+                    System.out.println("Enter ID of product to add");
+                    int idToAdd = readInt();
+                    System.out.println("Enter desired quantity");
+                    int chosenQuantity = readInt();
+                    controller.addToCartPressed(idToAdd, chosenQuantity);
+                    //controller.getCart().addToCart(idToAdd, chosenQuantity);
+                    //System.out.println(Arrays.toString(controller.getCart().getCartStrings()));
+                case 6:
+                    //TODO check out
+                    break;
+                case 8:
+                    adminMenu();
+                    break;
+            }
+            choice = readInt();
         }
 
     }

@@ -12,7 +12,8 @@ import Model.OrderedItem;
 import Model.Product;
 import View.*;
 
-import java.io.Console;
+import java.util.Arrays;
+
 
 public class Controller {
     private Cart cart;
@@ -25,7 +26,7 @@ public class Controller {
 
     public Controller() throws Exception {
         dbc = new DBCInterface();
-        //consoleView = new ConsoleTest();
+        consoleView = new ConsoleTest();
         cView = new ConsoleView(this, dbc);
     }
 
@@ -52,6 +53,9 @@ public class Controller {
         }
     }
     public Cart getCart(){
+        if(cart == null){
+            cart = new Cart();
+        }
         return cart;
     }
 
@@ -124,12 +128,20 @@ public class Controller {
     }
 
     // CUSTOMER
-    public void addToCartPressed(){
-        int product_id = consoleView.getID(); // view.getProductListSelection..
-        int quantity = consoleView.getInteger();
-        if(cart.getIndexOfProductID(product_id) < 0){
+    public void addToCartPressed(int product_id, int quantity){
+        if(cart == null){
+            cart = new Cart();
+            System.out.println("New cart made!");
+        }
+        cart.addToCart(product_id, quantity);                    //Testing only, remove later
+        if(cart.getIndexOfProductID(product_id) < 0){           //TODO Denna felchecken kastar exceptions vid första item to add
             cart.addToCart(product_id, quantity);
         }
+        /*
+        Lite småsaker ska städas upp här och felchecken måste kollas över (tror jag)
+        Jag antar att getIndexOfProductID handlar om att checka att valt ID tillhör en produkt
+        Kan vi felchecka detta på ett annat sätt? //Måns
+         */
     }
     /*
     public void removeFromCartPressed(){
@@ -291,6 +303,9 @@ public class Controller {
             e.printStackTrace();
         }
     }
+    public Account getLoggedInAccount(){
+        return null;
+    }
     public void showSuppliersPressed(){
         try{
             String[] suppliers = dbc.getSuppliers();
@@ -326,6 +341,12 @@ public class Controller {
         catch (Exception e){
             e.printStackTrace();
         }
+    }
+    public String[] showAllSelected(String name, String type, String supplier, float minPrice, float maxPrice) throws Exception{
+        System.out.println("Returning all db products..");
+        return dbc.getAvailableProducts(name, type, supplier, minPrice, maxPrice);
+        //System.out.println(Arrays.toString(dbc.getAvailableProducts(name, type, supplier, minPrice, maxPrice)));    //TODO Formattera ordentligt
+
     }
     public void showDiscountHistoryPressed(){
         try{
@@ -392,9 +413,12 @@ public class Controller {
             e.printStackTrace();
         }
     }
+    public DBCInterface getDbc(){
+        return dbc;
+    }
 
 
-    private void tryLogin(String[] accountData){
+    private Account tryLogin(String[] accountData){
         Account account = new Account();
         try {
             account.setId(Integer.parseInt(accountData[0]));
@@ -406,6 +430,7 @@ public class Controller {
         }
 
         loginAccount(account);
+        return account;
     }
 
 

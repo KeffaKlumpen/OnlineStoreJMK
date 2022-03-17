@@ -138,9 +138,9 @@ public class NPanel extends JPanel implements ActionListener {
         else if (e.getSource()==rabatter){
             controller.showDiscountHistoryPressed();
         }
-        else if (e.getSource()==addCart){
+        /*else if (e.getSource()==addCart){
             controller.addToCartPressed();
-        }
+        }*/
         else if (e.getSource()==seeCart){
             controller.showCartPressed();
         }

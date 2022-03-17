@@ -6,10 +6,8 @@
 
 package View;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.Statement;
+import javax.swing.plaf.nimbus.State;
+import java.sql.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -50,12 +48,50 @@ public class DBCInterface {
     }
 
     //// API ////
+
+    //TODO Läs och räkna ut slutpris efter discount och fixa snyggare utskrift //Måns
+    public String[] getAllAvailableProducts() throws SQLException {
+        Connection con = getDataBaseConnection();
+        Statement stmt = con.createStatement();
+        String QUERY = String.format("Select * from product where quantity > 0");
+
+        ResultSet rs = stmt.executeQuery(QUERY);
+        ArrayList<String> table = new ArrayList<>();
+
+        while (rs.next()){
+            String row = "";
+
+            // product
+            row += String.format("%d|", rs.getInt("id"));           // product_id
+            row += String.format("%s|", rs.getString("name"));      // product_name
+            row += String.format("%s|", rs.getString("type"));      // product_type
+            row += String.format("%d|", rs.getInt("quantity"));
+            row += String.format("%f|", rs.getFloat("baseprice"));
+
+            // discounted_product & discount
+            //row += String.format("%d|", rs.getInt("percentage"));
+            //row += String.format("%s|", rs.getString("discount_code"));
+            //row += String.format("%f|", rs.getFloat("discount_amount"));
+            //row += String.format("%f|", rs.getFloat("final_price"));
+
+            // supplier
+            row += String.format("%d|", rs.getInt("supplier_id"));
+            //row += String.format("%s", rs.getString("supplier_name"));        //nyckla skiten?
+
+            table.add(row);
+        }
+
+
+
+        return table.toArray(new String[0]);
+    }
     // Product
     public String[] getAvailableProducts(String product_name, String product_type, String supplier_name, double minPrice, double maxPrice) throws Exception{
         Connection con = getDataBaseConnection();
         Statement stmt = con.createStatement();
         String QUERY = String.format(Locale.US, "SELECT * FROM f_available_products('%s', '%s', '%s', %f, %f);",
                 product_name, product_type, supplier_name, minPrice, maxPrice);
+
         ResultSet rs = stmt.executeQuery(QUERY);
 
         ArrayList<String> table = new ArrayList<>();
@@ -79,17 +115,18 @@ public class DBCInterface {
             // supplier
             row += String.format("%d|", rs.getInt("supplier_id"));
             row += String.format("%s", rs.getString("supplier_name"));
-
+            table.add("\n");
             table.add(row);
         }
 
-        return table.toArray(new String[0]);
+        return table.toArray(new String[0]);        //TODO Formatering, fixa fina tabeller
     }
     public String[] getCurrentlyDiscountedProducts(String product_name, String product_type, String supplier_name, double minPrice, double maxPrice) throws Exception{
         Connection con = getDataBaseConnection();
         Statement stmt = con.createStatement();
-        String QUERY = String.format("SELECT * FROM f_currently_discounted_products('%s', '%s', '%s', %f, %f);",
-                product_name, product_type, supplier_name, minPrice, maxPrice);
+        //String QUERY = String.format("SELECT * FROM f_currently_discounted_products('%s', '%s', '%s', %f, %f);",
+         //       product_name, product_type, supplier_name, minPrice, maxPrice);
+        String QUERY = "f_currently_discounted_products('name', 'type', 'supp name', 0, 10)";
         ResultSet rs = stmt.executeQuery(QUERY);
 
         ArrayList<String> table = new ArrayList<>();
