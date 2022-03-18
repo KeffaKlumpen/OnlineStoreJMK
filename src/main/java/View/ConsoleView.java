@@ -28,15 +28,18 @@ public class ConsoleView {
     }
 
     public void mainMenu() throws Exception {
-        System.out.println("What do u want to do?");
-        System.out.println("1: Log in");
-        System.out.println("2: Continue as guest");
-        System.out.println("3: Register account");
-        System.out.println("4: debug");
-        System.out.println("0: Quit");
-        int choice = readInt();
-        while(choice != 0){
-            //choice = readInt();
+        int choice;
+
+        do{
+            System.out.println("WELCOME... what do you want to do?");
+            System.out.println("1: Log in");
+            System.out.println("2: Register account");
+            System.out.println("3: Continue as guest");
+            System.out.println("4: debug");
+            System.out.println("0: Quit");
+
+            choice = readInt();
+
             switch (choice){
                 case 1:
                     System.out.println("Write your email");
@@ -44,7 +47,6 @@ public class ConsoleView {
                     System.out.println("Email entered is: " + email);
                     controller.loginPressed(email);
 
-                    System.out.println("Current account: " + controller.getLoggedInAccount());
                     if (controller.getLoggedInAccount() != null) {
                         if (controller.getLoggedInAccount().isAdmin()){
                             adminMenu();
@@ -52,25 +54,29 @@ public class ConsoleView {
                             customerMenu();
                         }
                     } else {
-                        System.out.println("User not found..");
+                        System.out.println("User does not exist, try again\n");
+                        break;
                     }
                     break;
                 case 2:
-                    guestMenu();
+                    register();
                     break;
                 case 3:
-                    register();
+                    guestMenu();
                     break;
                 case 4:
                     //Used for debugging currently
                     //customerMenu();
                     //mainMenu();
                     break;
+                case 0:
+                    System.out.println("\nExiting.....");
+                    break;
                 default:
                     System.out.println("Invalid choice, try again");
                     break;
             }
-        }
+        } while (choice != 0);
     }
 
     public void register() throws Exception {
@@ -210,22 +216,23 @@ public class ConsoleView {
     }
 
     public void customerMenu() throws Exception {
-        int choice = -1;
-        System.out.println("Do stuff as a customer\n");
+        int choice;
 
-        System.out.println("What do u want to do?");
-        System.out.println("0: Log out                              (Klar!");
-        System.out.println("1: View all available products          (Typ klar?)");
-        System.out.println("2: View all discounted products");
-        System.out.println("3: Search products by ID                (Klar!)");
-        System.out.println("4: View cart");
-        System.out.println("5: Select item to add to cart");        //TODO
-        System.out.println("6: Finish shopping");
-        System.out.println("8: Admin menu");
+        do {
+            System.out.println("\nWelcome, customer\n");
 
-        choice = readInt();
+            System.out.println("What do u want to do?");
+            System.out.println("0: Log out                              (Klar!");
+            System.out.println("1: View all available products          (Typ klar?)");
+            System.out.println("2: View all discounted products");
+            System.out.println("3: Search products by ID                (Klar!)");
+            System.out.println("4: View cart");
+            System.out.println("5: Select item to add to cart");        //TODO
+            System.out.println("6: Finish shopping");
+            System.out.println("8: Admin menu");
 
-        while (choice != -1) {
+            choice = readInt();
+
             switch (choice){
                 case 0:
                     controller.logOutUser();
@@ -239,7 +246,9 @@ public class ConsoleView {
                     //System.out.println(Arrays.toString(db.getAllAvailableProducts()));      //Denna funkar men känns fel
                     break;
                 case 2:     //TODO
-                    db.getCurrentlyDiscountedProducts("a", "a", "a" , Integer.MIN_VALUE, Integer.MAX_VALUE);
+                    System.out.println("Trying to get all discounted products...");
+                    controller.showCurrentlyDiscountedProductsPressed();
+                    System.out.println(Arrays.toString(db.getCurrentlyDiscountedProducts()));
                     break;
                 case 3:
                     System.out.println("Enter ID to search for");
@@ -272,7 +281,7 @@ public class ConsoleView {
                     break;
             }
             choice = readInt();
-        }
+        } while (choice != -1);
 
     }
 

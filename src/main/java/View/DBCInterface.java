@@ -14,34 +14,35 @@ import java.util.ArrayList;
 import java.util.Locale;
 
 public class DBCInterface {
-    public Connection getDataBaseConnection(){
+    public Connection getDataBaseConnection() {
         String url = "jdbc:postgresql://pgserver.mau.se:5432/onlinestorejmk";
         String user = "ai7892";
         String password = "sndhw9t4";
 
         Connection con;
 
-        try{
+        try {
             con = DriverManager.getConnection(url, user, password);
 
             return con;
-        } catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             return null;
         }
     }
-    public boolean testDataBaseConnection(){
+
+    public boolean testDataBaseConnection() {
         String url = "jdbc:postgresql://pgserver.mau.se:5432/onlinestorejmk";
         String user = "ai7892";
         String password = "sndhw9t4";
 
         Connection con;
 
-        try{
+        try {
             con = DriverManager.getConnection(url, user, password);
 
             return true;
-        } catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             return false;
         }
@@ -50,7 +51,7 @@ public class DBCInterface {
     //// API ////
 
     // Product
-    public String[] getAvailableProducts(String product_name, String product_type, String supplier_name, double minPrice, double maxPrice) throws Exception{
+    public String[] getAvailableProducts(String product_name, String product_type, String supplier_name, double minPrice, double maxPrice) throws Exception {
         Connection con = getDataBaseConnection();
         Statement stmt = con.createStatement();
         String QUERY = String.format(Locale.US, "SELECT * FROM f_available_products('%s', '%s', '%s', %f, %f);",
@@ -60,7 +61,7 @@ public class DBCInterface {
 
         ArrayList<String> table = new ArrayList<>();
 
-        while (rs.next()){
+        while (rs.next()) {
             String row = "";
 
             // product
@@ -85,43 +86,36 @@ public class DBCInterface {
 
         return table.toArray(new String[0]);        //TODO Formatering, fixa fina tabeller
     }
-    public String[] getCurrentlyDiscountedProducts(String product_name, String product_type, String supplier_name, double minPrice, double maxPrice) throws Exception{
+
+    public String[] getCurrentlyDiscountedProducts() throws Exception {
         Connection con = getDataBaseConnection();
         Statement stmt = con.createStatement();
 
         //TODO
-        String QUERY = String.format("SELECT * FROM f_currently_discounted_products('%s', '%s', '%s', %f, %f);",
-              product_name, product_type, supplier_name, minPrice, maxPrice);
-        //String QUERY = "select * from discounted_product";
+        //String QUERY = String.format("SELECT * FROM f_currently_discounted_products('%s', '%s', '%s', %f, %f);",
+        //product_name, product_type, supplier_name, minPrice, maxPrice);
+        String QUERY = "select * from discounted_product";
         ResultSet rs = stmt.executeQuery(QUERY);
 
         ArrayList<String> table = new ArrayList<>();
 
-        while (rs.next()){
+        while (rs.next()) {
             String row = "";
 
             // product
-            row += String.format("%d|", rs.getInt("id"));           // product_id
-            row += String.format("%s|", rs.getString("name"));      // product_name
-            row += String.format("%s|", rs.getString("type"));      // product_type
-            row += String.format("%d|", rs.getInt("quantity"));
-            row += String.format("%f|", rs.getFloat("baseprice"));
-
-            // discounted_product & discount
-            row += String.format("%d|", rs.getInt("percentage"));
-            row += String.format("%s|", rs.getString("discount_code"));
-            row += String.format("%f|", rs.getFloat("discount_amount"));
-            row += String.format("%f|", rs.getFloat("final_price"));
-
-            // supplier
-            row += String.format("%d|", rs.getInt("supplier_id"));
-            row += String.format("%s", rs.getString("supplier_name"));
+            row += rs.getInt("id");                  // product_id
+            row += rs.getString("discount_code");    // discount_code
+            row += rs.getString("product_id");       // product_id
+            row += rs.getInt("percentage");           // percentage
+            row += rs.getDate("startdate");          // startdate
+            row += rs.getDate("enddate");           // enddate
 
             table.add(row);
         }
 
         return table.toArray(new String[0]);
     }
+
     public String getProductByID(int product_id) throws Exception {
         Connection con = getDataBaseConnection();
         Statement stmt = con.createStatement();
@@ -130,7 +124,7 @@ public class DBCInterface {
 
         String product_data = "";
 
-        if(rs.next()){
+        if (rs.next()) {
             // product
             product_data += String.format("%d|", rs.getInt("id"));           // product_id
             product_data += String.format("%s|", rs.getString("name"));      // product_name
@@ -153,7 +147,7 @@ public class DBCInterface {
     }
 
     //--- ADMIN
-    public String[] getAllProducts(String product_name, String product_type, String supplier_name, double minPrice, double maxPrice) throws Exception{
+    public String[] getAllProducts(String product_name, String product_type, String supplier_name, double minPrice, double maxPrice) throws Exception {
         Connection con = getDataBaseConnection();
         Statement stmt = con.createStatement();
         String QUERY = String.format("SELECT * FROM f_all_products('%s', '%s', '%s', %f, %f);",
@@ -162,7 +156,7 @@ public class DBCInterface {
 
         ArrayList<String> table = new ArrayList<>();
 
-        while (rs.next()){
+        while (rs.next()) {
             String row = "";
 
             // product
@@ -187,7 +181,8 @@ public class DBCInterface {
 
         return table.toArray(new String[0]);
     }
-    public String[] getDiscountedProductHistory() throws Exception{
+
+    public String[] getDiscountedProductHistory() throws Exception {
         Connection con = getDataBaseConnection();
         Statement stmt = con.createStatement();
         String QUERY = String.format("SELECT * FROM discounted_product;");
@@ -195,7 +190,7 @@ public class DBCInterface {
 
         ArrayList<String> table = new ArrayList<>();
 
-        while (rs.next()){
+        while (rs.next()) {
             String row = "";
 
             row += String.format("%d|", rs.getInt("id"));
@@ -210,6 +205,7 @@ public class DBCInterface {
 
         return table.toArray(new String[0]);
     }
+
     public void removeUnsoldProduct() throws SQLException {
         Connection con = getDataBaseConnection();
         Statement stmnt = con.createStatement();
@@ -219,7 +215,7 @@ public class DBCInterface {
     // Get the most ordered products during the specified month.
     // Returns up to 3 rows
     // params yearAndMonth Formatted as "yyyy-MM"
-    public String[] getTopSellers(String yearAndMonth) throws Exception{
+    public String[] getTopSellers(String yearAndMonth) throws Exception {
         Connection con = getDataBaseConnection();
         Statement stmnt = con.createStatement();
         String QUERY = String.format("select * FROM f_top_ordered_by_month('%s');", yearAndMonth);
@@ -227,7 +223,7 @@ public class DBCInterface {
 
         ArrayList<String> table = new ArrayList<>();
 
-        while (rs.next()){
+        while (rs.next()) {
             String row = "";
 
             row += String.format("%s|", rs.getDate("order_month").toString());
@@ -240,7 +236,7 @@ public class DBCInterface {
         return table.toArray(new String[0]);
     }
 
-    public void addProduct(String name, String type, int quantity, float baseprice, int supplier_id) throws Exception{
+    public void addProduct(String name, String type, int quantity, float baseprice, int supplier_id) throws Exception {
         Connection con = getDataBaseConnection();
         Statement stmt = con.createStatement();
         String QUERY = String.format(Locale.US, "INSERT INTO product (name, type, quantity, baseprice, supplier_id) " +
@@ -248,17 +244,19 @@ public class DBCInterface {
         System.out.println("addProduct(...) === " + QUERY);
         stmt.execute(QUERY);
     }
-    public boolean removeProduct(int product_id) throws Exception{
+
+    public boolean removeProduct(int product_id) throws Exception {
         Connection con = getDataBaseConnection();
         Statement stmt = con.createStatement();
         String QUERY = String.format("select * from f_remove_product(%d)", product_id);
         ResultSet rs = stmt.executeQuery(QUERY);
-        if(rs.next()){
+        if (rs.next()) {
             return rs.getBoolean(1);
         }
 
         return false;
     }
+
     public int getQuantity(int id) throws SQLException {
         Connection con = getDataBaseConnection();
         Statement stmt = con.createStatement();
@@ -267,13 +265,14 @@ public class DBCInterface {
 
         ResultSet rs = stmt.executeQuery(QUERY);
         int quantity = 0;
-        while(rs.next()){
+        while (rs.next()) {
             quantity = rs.getInt("quantity");
         }
 
         return quantity;
     }
-    public void setQuantity(int id, int quantity) throws Exception{
+
+    public void setQuantity(int id, int quantity) throws Exception {
         Connection con = getDataBaseConnection();
         Statement stmt = con.createStatement();
         String QUERY = String.format("select setQuantity(%d, %d);", id, quantity);
@@ -282,7 +281,7 @@ public class DBCInterface {
 
     // Supplier
     //--- ADMIN
-    public String[] getSuppliers() throws Exception{
+    public String[] getSuppliers() throws Exception {
         Connection con = getDataBaseConnection();
         Statement stmt = con.createStatement();
         String QUERY = "SELECT * FROM supplier;";
@@ -290,7 +289,7 @@ public class DBCInterface {
 
         ArrayList<String> table = new ArrayList<>();
 
-        while (rs.next()){
+        while (rs.next()) {
             String row = "";
 
             row += String.format("%d|", rs.getInt("id"));
@@ -305,7 +304,8 @@ public class DBCInterface {
 
         return table.toArray(new String[0]);
     }
-    public void addSupplier(String phone, String street, String city, String country, String supplier_name) throws Exception{
+
+    public void addSupplier(String phone, String street, String city, String country, String supplier_name) throws Exception {
         Connection con = getDataBaseConnection();
         Statement stmt = con.createStatement();
         String QUERY = String.format("INSERT INTO supplier (phone, address, city, country, supplier_name) " +
@@ -315,14 +315,15 @@ public class DBCInterface {
 
     // Discount
     //--- ADMIN
-    public void addDiscount(String code, String reason) throws Exception{
+    public void addDiscount(String code, String reason) throws Exception {
         Connection con = getDataBaseConnection();
         Statement stmt = con.createStatement();
         String QUERY = String.format("INSERT INTO discount (code, reason) VALUES ('%s', '%s');", code, reason);
         stmt.execute(QUERY);
     }
+
     // @param percentage An Integer in the range of 0-100
-    public void addDiscountedProduct(String discount_code, int product_id, int percentage, String startdate, String enddate) throws Exception{
+    public void addDiscountedProduct(String discount_code, int product_id, int percentage, String startdate, String enddate) throws Exception {
         Connection con = getDataBaseConnection();
         Statement stmt = con.createStatement();
         String QUERY = String.format("INSERT INTO discounted_product (discount_code, product_id, percentage, startdate, enddate) " +
@@ -333,7 +334,7 @@ public class DBCInterface {
     // Order
     // NOTE: Currently we get Order.totalCost by getting finalPrice from getOrderedProductsByOrder,
     // and then adding them together. Maybe this should be included in getCustomersOrder() view?
-    public String[] getCustomersOrders(int customer_id) throws Exception{
+    public String[] getCustomersOrders(int customer_id) throws Exception {
         Connection con = getDataBaseConnection();
         Statement stmt = con.createStatement();
         String QUERY = String.format("SELECT * FROM orders where customer_id = %d;", customer_id);
@@ -341,7 +342,7 @@ public class DBCInterface {
 
         ArrayList<String> table = new ArrayList<>();
 
-        while (rs.next()){
+        while (rs.next()) {
             String row = "";
 
             row += String.format("%d|", rs.getInt("id"));
@@ -354,7 +355,8 @@ public class DBCInterface {
 
         return table.toArray(new String[0]);
     }
-    public String[] getOrderedProductsByOrder(int order_id) throws Exception{
+
+    public String[] getOrderedProductsByOrder(int order_id) throws Exception {
         Connection con = getDataBaseConnection();
         Statement stmt = con.createStatement();
         String QUERY = String.format("SELECT * FROM f_ordered_products(%d);", order_id);
@@ -362,7 +364,7 @@ public class DBCInterface {
 
         ArrayList<String> table = new ArrayList<>();
 
-        while (rs.next()){
+        while (rs.next()) {
             String row = "";
 
             // ordered_product
@@ -408,7 +410,7 @@ public class DBCInterface {
                 " VALUES ('%s', %b, %d) returning orders.id;", getCurrentDate(), false, customer_id);
         ResultSet rs = stmt.executeQuery(QUERY);
         int order_id = -1;
-        if(rs.next()){
+        if (rs.next()) {
             order_id = rs.getInt(1);
         }
 
@@ -422,7 +424,7 @@ public class DBCInterface {
 
             QUERY += String.format("(%d,%d,%d)", order_id, product_id, quantity);
 
-            if(i >= productsAndQuantity.length - 1)
+            if (i >= productsAndQuantity.length - 1)
                 QUERY += ";";
             else
                 QUERY += ",";
@@ -448,13 +450,13 @@ public class DBCInterface {
         stmt.execute(QUERY);
     }
 
-    public void getTotalOrderCost(int order_id){
+    public void getTotalOrderCost(int order_id) {
         // SQL function, count discounts!
         // DONT NEED...? Can get from getOrderedProductsByOrder()
     }
 
     //--- ADMIN
-    public String[] getUnconfirmedOrders() throws Exception{
+    public String[] getUnconfirmedOrders() throws Exception {
         Connection con = getDataBaseConnection();
         Statement stmt = con.createStatement();
         String QUERY = "SELECT * FROM orders where confirmed = false ORDER BY id;";
@@ -462,7 +464,7 @@ public class DBCInterface {
 
         ArrayList<String> table = new ArrayList<>();
 
-        while (rs.next()){
+        while (rs.next()) {
             String row = "";
 
             row += String.format("%d|", rs.getInt("id"));
@@ -479,14 +481,15 @@ public class DBCInterface {
     public void confirmOrder(int order_id) throws Exception {
         confirmOrder(order_id, true);
     }
-    public void confirmOrder(int order_id, boolean confirmStatus) throws Exception{
+
+    public void confirmOrder(int order_id, boolean confirmStatus) throws Exception {
         Connection con = getDataBaseConnection();
         Statement stmt = con.createStatement();
-            String QUERY = String.format("UPDATE orders SET confirmed = %b WHERE id = %d;", confirmStatus, order_id);
+        String QUERY = String.format("UPDATE orders SET confirmed = %b WHERE id = %d;", confirmStatus, order_id);
         stmt.execute(QUERY);
     }
 
-    public void removeOrder(int order_id) throws Exception{
+    public void removeOrder(int order_id) throws Exception {
         Connection con = getDataBaseConnection();
         Statement stmt = con.createStatement();
         String QUERY = String.format("DELETE from orders where id = %d;", order_id);
@@ -494,30 +497,31 @@ public class DBCInterface {
     }
 
     // Account
-    public boolean registerAccount(String fullName, String email, String street, String city, String country, String phone) throws Exception{
+    public boolean registerAccount(String fullName, String email, String street, String city, String country, String phone) throws Exception {
         return registerAccount(fullName, email, street, city, country, phone, false);
     }
-    public boolean registerAccount(String fullName, String email, String street, String city, String country, String phone, boolean admin_status) throws Exception{
+
+    public boolean registerAccount(String fullName, String email, String street, String city, String country, String phone, boolean admin_status) throws Exception {
         Connection con = getDataBaseConnection();
         String QUERY = String.format("select registerAccount('%s', '%s', '%s', '%s', '%s', '%s', %b);",
                 fullName, email, street, city, country, phone, admin_status);
         Statement stmt = con.createStatement();
         ResultSet rs = stmt.executeQuery(QUERY);
 
-        if(rs.next()){
+        if (rs.next()) {
             return rs.getBoolean(1);
         }
         return false;
     }
 
-    public String getAccount(String accountEmail) throws Exception{
+    public String getAccount(String accountEmail) throws Exception {
         Connection con = getDataBaseConnection();
         String QUERY = String.format("SELECT * FROM account WHERE \"email\" = '%s'", accountEmail);
         Statement stmt = con.createStatement();
         ResultSet rs = stmt.executeQuery(QUERY);
 
         StringBuilder accountRow = new StringBuilder();
-        while (rs.next()){
+        while (rs.next()) {
             String row = "";
 
             accountRow.append(String.format("%d|", rs.getInt("id")));
@@ -532,14 +536,15 @@ public class DBCInterface {
 
         return accountRow.toString();
     }
-    public String getAccount(int account_id) throws Exception{
+
+    public String getAccount(int account_id) throws Exception {
         Connection con = getDataBaseConnection();
         String QUERY = String.format("SELECT * FROM account WHERE \"id\" = '%s'", account_id);
         Statement stmt = con.createStatement();
         ResultSet rs = stmt.executeQuery(QUERY);
 
         StringBuilder accountRow = new StringBuilder();
-        while (rs.next()){
+        while (rs.next()) {
             String row = "";
 
             accountRow.append(String.format("%d|", rs.getInt("id")));
@@ -555,7 +560,7 @@ public class DBCInterface {
         return accountRow.toString();
     }
 
-    private String getCurrentDate(){
+    private String getCurrentDate() {
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("uuuu-MM-dd");
         LocalDate localDate = LocalDate.now();
         return dtf.format(localDate);

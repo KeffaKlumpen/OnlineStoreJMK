@@ -9,10 +9,8 @@ package Controller;
 import Model.Account;
 import Model.Cart;
 import Model.OrderedItem;
-import Model.Product;
 import View.*;
 
-import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Scanner;
 
@@ -47,7 +45,6 @@ public class Controller {
                 String dbData = dbc.getAccount(email);
                 String[] accountData = splitRow(dbData);
                 tryLogin(accountData);
-                System.out.println(accountData);
             }else{
                 System.out.println("user does not exist!");
             }
@@ -113,8 +110,18 @@ public class Controller {
             }
         }
     }
-    public void showCurrentlyDiscountedProductsPressed(){
-        String product_name = consoleView.getName();
+
+    public String[] showAllSelected(String name, String type, String supplier, float minPrice, float maxPrice) throws Exception{
+        System.out.println("Returning all products..");
+        return dbc.getAvailableProducts(name, type, supplier, minPrice, maxPrice);
+        //System.out.println(Arrays.toString(dbc.getAvailableProducts(name, type, supplier, minPrice, maxPrice)));    //TODO Formattera ordentligt
+
+    }
+    public String[] showCurrentlyDiscountedProductsPressed() throws Exception {
+        System.out.println("Returning all discounted products..");
+        return dbc.getCurrentlyDiscountedProducts();
+
+ /*       String product_name = consoleView.getName();
         String product_type = consoleView.getName();
         String supplier_name = consoleView.getName();
         int minPrice = consoleView.getInteger();
@@ -128,9 +135,8 @@ public class Controller {
         }
         catch (Exception e){
             e.printStackTrace();
-        }
+        }*/
     }
-
     // CUSTOMER
     public void addToCartPressed(int product_id, int quantity){
         if(cart == null){
@@ -364,12 +370,7 @@ public class Controller {
             e.printStackTrace();
         }
     }
-    public String[] showAllSelected(String name, String type, String supplier, float minPrice, float maxPrice) throws Exception{
-        System.out.println("Returning all db products..");
-        return dbc.getAvailableProducts(name, type, supplier, minPrice, maxPrice);
-        //System.out.println(Arrays.toString(dbc.getAvailableProducts(name, type, supplier, minPrice, maxPrice)));    //TODO Formattera ordentligt
 
-    }
     public void showDiscountHistoryPressed(){
         try{
             String[] discountHistory = dbc.getDiscountedProductHistory();
