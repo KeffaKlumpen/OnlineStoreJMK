@@ -259,6 +259,20 @@ public class DBCInterface {
 
         return false;
     }
+    public int getQuantity(int id) throws SQLException {
+        Connection con = getDataBaseConnection();
+        Statement stmt = con.createStatement();
+        String QUERY = String.format("SELECT quantity FROM product WHERE id ='" + id + "';");
+        System.out.println(QUERY);
+
+        ResultSet rs = stmt.executeQuery(QUERY);
+        int quantity = 0;
+        while(rs.next()){
+            quantity = rs.getInt("quantity");
+        }
+
+        return quantity;
+    }
     public void setQuantity(int id, int quantity) throws Exception{
         Connection con = getDataBaseConnection();
         Statement stmt = con.createStatement();
@@ -426,6 +440,14 @@ public class DBCInterface {
         String QUERY = String.format("UPDATE ordered_product SET quantity = %d WHERE product_id = %d AND order_id = %d;", newQuantity, product_id, order_id);
         stmt.execute(QUERY);
     }
+
+    public void updateQuantityOfProduct(int product_id, int newQuantity) throws Exception {
+        Connection con = getDataBaseConnection();
+        Statement stmt = con.createStatement();
+        String QUERY = String.format("UPDATE product SET quantity = %d WHERE id = %d;", newQuantity, product_id);
+        stmt.execute(QUERY);
+    }
+
     public void getTotalOrderCost(int order_id){
         // SQL function, count discounts!
         // DONT NEED...? Can get from getOrderedProductsByOrder()

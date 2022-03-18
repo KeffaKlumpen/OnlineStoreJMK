@@ -95,88 +95,105 @@ public class ConsoleView {
         db.registerAccount(name, email, street, city, country, phoneNbr, isAdmin);
     }
     public void adminMenu() throws Exception {
-        System.out.println("Do stuff as admin!\n");
+        boolean active = true;
+        while (active){
+            System.out.println("Do stuff as admin!\n");
 
-        System.out.println("What do u want to do?");
-        System.out.println("0: Log out");
-        System.out.println("1: Set quantity                             (Klar!)");
-        System.out.println("2: Get new orders                           (Klar!)");
-        System.out.println("3: Confirm order                            (Klar!)");
-        System.out.println("4: Remove unconfirmed order                 (Klar!)");
-        System.out.println("5: Get account by e-mail                    (Klar!)");
-        System.out.println("6: Update quantity of ordered product       (Ej klar)");             //todo
-        System.out.println("7: View discounted products");        //Currently discounted?        //todo
-        System.out.println("8: Add a new product to the store           (Klar!)");
-        System.out.println("9: Delete an item that has yet to be sold");                         //todo
+            System.out.println("What do u want to do?");
+            System.out.println("0: Log out");
+            System.out.println("1: Set quantity                             (Klar!)");
+            System.out.println("2: Get new orders                           (Klar!)");
+            System.out.println("3: Confirm order                            (Klar!)");
+            System.out.println("4: Remove unconfirmed order                 (Klar!)");
+            System.out.println("5: Get account by e-mail                    (Klar!)");
+            System.out.println("6: Update quantity of ordered product       (Klar)");
+            System.out.println("7: View discounted products");        //Currently discounted?        //todo
+            System.out.println("8: Add a new product to the store           (Klar!)");
+            System.out.println("9: Delete an item that has yet to be sold");                         //todo
 
-        int choice = readInt();
+            int choice = readInt();
 
-        switch (choice){
-            case 0:
-                controller.logOutUser();
-                System.out.println("Logged out!");
-                mainMenu();
-                break;
-            case 1:
-                //Change quantity of product chosen by ID
-                System.out.println("What product ID to change?");
-                int inputID = readInt();
-                System.out.println("Enter new quantity");
-                int quantity = readInt();
-                db.setQuantity(inputID, quantity);
-                break;
-            case 2:
-                controller.showUnconfirmedOrdersPressed();
-                break;
-            case 3:
-                //Print orders and enter ID to confirm
-                System.out.println(Arrays.toString(db.getUnconfirmedOrders()));
-                db.getUnconfirmedOrders();
-                System.out.println("Enter ID of order to confirm");
-                int orderNr = readInt();
-                db.confirmOrder(orderNr, true);
-                break;
-            case 4:
-                //Print all orders, then remove order by ID
-                System.out.println(Arrays.toString(db.getUnconfirmedOrders()));
-                int orderToRemove = readInt();
-                db.removeOrder(orderToRemove);
-                break;
-            case 5:
-                //Get account by email
-                //Behövs getAccount(int account_id) användas?
-                System.out.println("Enter email to search for: ");
-                String targetMail = readString();
-                System.out.println(db.getAccount(targetMail));
-                break;
-            case 6:     //TODO Testa mer. Funkar denna verkligen?
-                //TODO tf_update_product_quantity() kastar Exception. Fix or delete trigger?
-                //Se gärna över denna. Jag är liiite osäker på exakt vad dess syfte är //måns
-                //Update quantity of ordered products
-                System.out.println("Enter product ID:");
-                int chosenID = readInt();
-                System.out.println("Enter new quantity");
-                int newQuantity = readInt();
-                System.out.println("Enter order ID");
-                int orderID = readInt();
-                controller.updateOrderQuantityPressed(chosenID, newQuantity, orderID);
-            case 7:
-                //discount
-                controller.showCurrentlyDiscountedProductsPressed();
-            case 8:
-                //add a new item to the store
-                controller.addProductPressed();
-                break;
-            case 9:
-                //remove a product that hasn't been sold yet
-                controller.removeProductPressed();
-                break;
-            case 10:
-                //placeOrder(), Behövs denna metoden? Se kommentar i DBCInterface
-                break;
+            switch (choice) {
+                case 0:
+                    controller.logOutUser();
+                    System.out.println("Logged out!");
+                    mainMenu();
+                    break;
+                case 1:
+                    //Change quantity of product chosen by ID
+                    System.out.println("What product ID to change?");
+                    int inputID = readInt();
+                    System.out.println("Enter new quantity");
+                    int quantity = readInt();
+                    db.setQuantity(inputID, quantity);
+                    break;
+                case 2:
+                    controller.showUnconfirmedOrdersPressed();
+                    break;
+                case 3:
+                    //Print orders and enter ID to confirm
+                    System.out.println(Arrays.toString(db.getUnconfirmedOrders()));
+                    db.getUnconfirmedOrders();
+                    System.out.println("Enter ID of order to confirm");
+                    int orderNr = readInt();
+                    db.confirmOrder(orderNr, true);
+                    break;
+                case 4:
+                    //Print all orders, then remove order by ID
+                    System.out.println(Arrays.toString(db.getUnconfirmedOrders()));
+                    int orderToRemove = readInt();
+                    db.removeOrder(orderToRemove);
+                    break;
+                case 5:
+                    //Get account by email
+                    //Behövs getAccount(int account_id) användas?
+                    System.out.println("Enter email to search for: ");
+                    String targetMail = readString();
+                    System.out.println(db.getAccount(targetMail));
+                    break;
+                case 6:     //KLAR
+                    System.out.println("Enter product ID:");
+                    int chosenID = readInt();
 
-            default:
-                break;
+                    if (controller.validateIdInput(chosenID)) {
+                        System.out.println("Would you like to add or remove?\n" +
+                                "1. ADD\n" +
+                                "2. REMOVE\n" +
+                                "3. EXIT BACK TO MENU");
+                        int addOrRemoveInput = readInt();
+                        if (addOrRemoveInput == 1) {
+                            controller.updateOrderQuantityPressed(chosenID, addOrRemoveInput);
+                        } else if (addOrRemoveInput == 2) {
+                            controller.updateOrderQuantityPressed(chosenID, addOrRemoveInput);
+                        } else if (addOrRemoveInput == 3) {
+                            System.out.println("Returning to main menu...");
+                        } else {
+                            System.out.println("Error... try again");
+                        }
+                        break;
+                    }
+
+
+                    System.out.println("Enter order ID");
+                    int orderID = readInt();
+                case 7:
+                    //discount
+                    controller.showCurrentlyDiscountedProductsPressed();
+                case 8:
+                    //add a new item to the store
+                    controller.addProductPressed();
+                    break;
+                case 9:
+                    //remove a product that hasn't been sold yet
+                    controller.removeProductPressed();
+                    break;
+                case 10:
+                    //placeOrder(), Behövs denna metoden? Se kommentar i DBCInterface
+                    break;
+
+                default:
+                    break;
+            }
         }
     }
 

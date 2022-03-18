@@ -12,6 +12,7 @@ import Model.OrderedItem;
 import Model.Product;
 import View.*;
 
+import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Scanner;
 
@@ -202,26 +203,40 @@ public class Controller {
             consoleView.showError("Must be logged in to place order.");
         }
     }
-    public void updateOrderQuantityPressed(int product_id, int quantity, int order_id){
-        //int product_id = consoleView.getID(); // selected product in list..
-        //int quantity = consoleView.getInteger();
-        //int order_id = consoleView.getID(); // currently viewed order..
-        try{
-            dbc.updateQuantityOfOrderedProduct(product_id, quantity, order_id);
-            showOrderInfo(order_id);
+    public void updateOrderQuantityPressed(int productId, int choice) throws Exception {
+        int tot = 0;
+        if (choice == 1) {
+            System.out.println("How many orders would you like to add to this product?");
+            int addBy = readInt();
+            int curr = dbc.getQuantity(productId);
+            tot = addBy + curr;
+            System.out.println("Added " + addBy + " to the product. Updated total: " + tot);
+        } else if (choice == 2) {
+            System.out.println("How many orders would you like to remove from this product?");
+            int removeBy = readInt();
+            int curr = dbc.getQuantity(productId);
+            tot = curr - removeBy;
+            System.out.println("Removed " + removeBy + " from the product. Updated: " + tot);
         }
-        catch (Exception e){
-            e.printStackTrace();
-        }
+        dbc.updateQuantityOfProduct(productId,tot);
     }
-    public void abortOrderPressed(){
-        try {
-            int order_id = consoleView.getID();
-            dbc.removeOrder(order_id);
+
+    public int readInt() {
+        Scanner scanner = new Scanner(System.in);
+        int intOut = scanner.nextInt();
+        scanner.nextLine();
+        return intOut;
+    }
+
+    public boolean validateIdInput(int id) throws Exception {
+        if (id > 0) {
+            String s = dbc.getProductByID(id);
+            if (!s.equals("")) {
+                System.out.println("Loading product... " + s);
+                return true;
+            }
         }
-        catch (Exception e){
-            e.printStackTrace();
-        }
+        return false;
     }
 
     public void showMyOrdersPressed(){
