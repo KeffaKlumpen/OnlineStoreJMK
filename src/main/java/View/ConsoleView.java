@@ -268,7 +268,6 @@ public class ConsoleView {
                         System.out.println("Your cart:");
                         controller.getCart().toString();
                         System.out.println("Enter random key to continue");
-                        String random = readString();
                     }
 
                     System.out.println(Arrays.toString(controller.showAllSelected("", "", "", Float.MIN_VALUE, Float.MAX_VALUE)));
@@ -282,24 +281,14 @@ public class ConsoleView {
                     System.out.println("Added product!\nCart: ");
                     System.out.println(controller.getCart());
                     System.out.println("\nEnter random key to continue");
-                    String random = readString();
                     break;
 
                 case 5:  //print cart
-                    if (controller.getCart() != null) {
+                    if (!controller.getCart().isEmpty()) {
                         System.out.println("Loading cart...");
-                        controller.showCartPressed();
+                        controller.getCart();
                     } else {
                         System.out.println("Cart is empty! Try adding items first");
-                    }
-
-                    //controller.addToCartPressed();
-
-                    String cart = String.valueOf(controller.getCart());
-                    if (controller.getCart() != null) {
-                        System.out.println(cart);
-                    } else {
-                        System.out.println("Cart is empty!");
                     }
                 case 6:
                     //TODO check out
