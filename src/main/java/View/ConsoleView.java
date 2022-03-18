@@ -286,19 +286,20 @@ public class ConsoleView {
                 case 5:  //print cart
                     if (!controller.getCart().isEmpty()) {
                         System.out.println("Loading cart...");
-                        controller.getCart();
+                        System.out.println(controller.getCart());
                     } else {
                         System.out.println("Cart is empty! Try adding items first");
                     }
                 case 6:
                     //TODO check out
+                    System.out.println("Would you like to checkout?\n1. yes\n2.no");
+                    String ansr = readString();
                     break;
                 case 8:
                     adminMenu();
                     break;
             }
-            choice = readInt();
-        } while (choice != -1);
+        } while (choice != 0);
 
     }
 
