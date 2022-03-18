@@ -1,27 +1,31 @@
 package View;
 
 import Controller.Controller;
+import Model.Product;
 
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.Scanner;
 
 
 public class ConsoleView {
     private Controller controller;
     private DBCInterface db;
+
     public ConsoleView(Controller controller, DBCInterface db) throws Exception {
         this.controller = controller;
         this.db = db;
         mainMenu();
     }
 
-    public int readInt(){
+    public int readInt() {
         Scanner scanner = new Scanner(System.in);
         int intOut = scanner.nextInt();
         scanner.nextLine();
         return intOut;
     }
-    public String readString(){
+
+    public String readString() {
         Scanner scanner = new Scanner(System.in);
         String strOut = scanner.nextLine();
         return strOut;
@@ -30,7 +34,7 @@ public class ConsoleView {
     public void mainMenu() throws Exception {
         int choice;
 
-        do{
+        do {
             System.out.println("WELCOME... what do you want to do?");
             System.out.println("1: Log in");
             System.out.println("2: Register account");
@@ -40,7 +44,7 @@ public class ConsoleView {
 
             choice = readInt();
 
-            switch (choice){
+            switch (choice) {
                 case 1:
                     System.out.println("Write your email");
                     String email = readString();
@@ -48,9 +52,9 @@ public class ConsoleView {
                     controller.loginPressed(email);
 
                     if (controller.getLoggedInAccount() != null) {
-                        if (controller.getLoggedInAccount().isAdmin()){
+                        if (controller.getLoggedInAccount().isAdmin()) {
                             adminMenu();
-                        }else{
+                        } else {
                             customerMenu();
                         }
                     } else {
@@ -95,16 +99,16 @@ public class ConsoleView {
         System.out.println("***************************");
 
 
-
         System.out.println("Press 1 to register as customer, 2 to register as admin");
         int choice = readInt();
         boolean isAdmin = (choice == 2);
 
         db.registerAccount(name, email, street, city, country, phoneNbr, isAdmin);
     }
+
     public void adminMenu() throws Exception {
         boolean active = true;
-        while (active){
+        while (active) {
             System.out.println("Do stuff as admin!\n");
 
             System.out.println("What do u want to do?");
@@ -205,11 +209,12 @@ public class ConsoleView {
         }
     }
 
-    public void printDiscountMenu(){
+    public void printDiscountMenu() {
         System.out.println("1: Add discount (With code and reason");
         System.out.println("2: todo");
     }
-    public void guestMenu(){
+
+    public void guestMenu() {
         System.out.println("What do u want to do");
         System.out.println("1: View top sellers by year and month");
         System.out.println("2: ");
@@ -223,17 +228,17 @@ public class ConsoleView {
 
             System.out.println("What do u want to do?");
             System.out.println("0: Log out                              (Klar!");
-            System.out.println("1: View all available products          (Typ klar?)");
-            System.out.println("2: View all discounted products");
+            System.out.println("1: View all available products          (klar)");
+            System.out.println("2: View all discounted products         (klar)");
             System.out.println("3: Search products by ID                (Klar!)");
-            System.out.println("4: View cart");
-            System.out.println("5: Select item to add to cart");        //TODO
+            System.out.println("4: Select item to add to cart");
+            System.out.println("5: View cart");        //TODO
             System.out.println("6: Finish shopping");
             System.out.println("8: Admin menu");
 
             choice = readInt();
 
-            switch (choice){
+            switch (choice) {
                 case 0:
                     controller.logOutUser();
                     System.out.println("Logged out!");
@@ -241,38 +246,61 @@ public class ConsoleView {
                     break;
                 case 1:
                     System.out.println("Trying to get available products...");
-                    System.out.println(Arrays.toString(controller.showAllSelected("", "", "", Float.MIN_VALUE, Float.MAX_VALUE)));
+                    System.out.println(Arrays.toString(controller.showAllSelected("", "", "", Float.MIN_VALUE, Float.MAX_VALUE)) +
+                            "\nEnter random key to continue");
                     //db.getAvailableProducts("", "", "", Integer.MIN_VALUE, Integer.MAX_VALUE);    //Denna funkar ej, "function now found" - Troligtvis pga fel datatyp som parameter (unknown säger java)
                     //System.out.println(Arrays.toString(db.getAllAvailableProducts()));      //Denna funkar men känns fel
                     break;
                 case 2:     //TODO
                     System.out.println("Trying to get all discounted products...");
                     controller.showCurrentlyDiscountedProductsPressed();
-                    System.out.println(Arrays.toString(db.getCurrentlyDiscountedProducts()));
+                    System.out.println(Arrays.toString(db.getCurrentlyDiscountedProducts()) +
+                            "\nEnter random key to continue");
                     break;
                 case 3:
                     System.out.println("Enter ID to search for");
                     int inputID = readInt();
-                    System.out.print(db.getProductByID(inputID));
+                    System.out.print(db.getProductByID(inputID) +
+                            "\nEnter random key to continue");
                     break;
-                case 4:     //print cart
-                    if (controller.getCart() != null){
-                        controller.getCart().getCartStrings();
-                    }else{
-                        System.out.println("Cart is empty!");
+                case 4:     //Add to cart
+                    if (controller.busyCart()) {
+                        System.out.println("Your cart:");
+                        controller.getCart().toString();
+                        System.out.println("Enter random key to continue");
+                        String random = readString();
                     }
-                    break;
-                case 5:     //Add to cart
-                    //print cart
-                    //cart.add(id, quantity)
+
                     System.out.println(Arrays.toString(controller.showAllSelected("", "", "", Float.MIN_VALUE, Float.MAX_VALUE)));
                     System.out.println("Enter ID of product to add");
                     int idToAdd = readInt();
                     System.out.println("Enter desired quantity");
                     int chosenQuantity = readInt();
-                    controller.addToCartPressed(idToAdd, chosenQuantity);
-                    //controller.getCart().addToCart(idToAdd, chosenQuantity);
-                    //System.out.println(Arrays.toString(controller.getCart().getCartStrings()));
+
+                    controller.addToCartPressed(idToAdd,chosenQuantity);
+
+                    System.out.println("Added product!\nCart: ");
+                    System.out.println(controller.getCart());
+                    System.out.println("\nEnter random key to continue");
+                    String random = readString();
+                    break;
+
+                case 5:  //print cart
+                    if (controller.getCart() != null) {
+                        System.out.println("Loading cart...");
+                        controller.showCartPressed();
+                    } else {
+                        System.out.println("Cart is empty! Try adding items first");
+                    }
+
+                    //controller.addToCartPressed();
+
+                    String cart = String.valueOf(controller.getCart());
+                    if (controller.getCart() != null) {
+                        System.out.println(cart);
+                    } else {
+                        System.out.println("Cart is empty!");
+                    }
                 case 6:
                     //TODO check out
                     break;
