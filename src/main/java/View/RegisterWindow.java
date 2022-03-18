@@ -132,7 +132,7 @@ public class RegisterWindow extends JFrame implements ActionListener {
 
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == loginButton) {
-            controller.loginPressed();
+            //controller.loginPressed();
         } else if (e.getSource() == registerButton) {
             controller.registerAccountPressed();
         }

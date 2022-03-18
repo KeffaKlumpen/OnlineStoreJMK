@@ -34,13 +34,16 @@ public class ConsoleView {
         System.out.println("3: Register account");
         System.out.println("4: debug");
         System.out.println("0: Quit");
-        int choice = -1;
+        int choice = readInt();
         while(choice != 0){
             //choice = readInt();
-            choice = 4;
             switch (choice){
                 case 1:
-                    controller.loginPressed();
+                    System.out.println("Write your email");
+                    String email = readString();
+                    System.out.println("Email entered is: " + email);
+                    controller.loginPressed(email);
+
                     System.out.println("Current account: " + controller.getLoggedInAccount());
                     if (controller.getLoggedInAccount() != null) {
                         if (controller.getLoggedInAccount().isAdmin()){
@@ -60,7 +63,6 @@ public class ConsoleView {
                     break;
                 case 4:
                     //Used for debugging currently
-                    adminMenu();
                     //customerMenu();
                     //mainMenu();
                     break;

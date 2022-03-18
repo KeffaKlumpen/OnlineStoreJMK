@@ -41,20 +41,13 @@ public class Controller {
     }
 
 
-    public void loginPressed() {
-        //TODO Läs input i ui, inte här
-        System.out.println("Write your email");
-        Scanner scanner = new Scanner(System.in);
-        String email = scanner.nextLine();
-        System.out.println("Email entered is: " + email);
-
+    public void loginPressed(String email) {
         try{
-            //if (email.equals(dbc.getAccount(email).)){       //If satsen suger
             if(dbc.getAccount(email) != null){
                 String dbData = dbc.getAccount(email);
                 String[] accountData = splitRow(dbData);
                 tryLogin(accountData);
-
+                System.out.println(accountData);
             }else{
                 System.out.println("user does not exist!");
             }
