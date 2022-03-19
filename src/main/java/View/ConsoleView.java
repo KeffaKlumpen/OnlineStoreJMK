@@ -186,11 +186,12 @@ public class ConsoleView {
                     }
 
 
-                    System.out.println("Enter order ID");
-                    int orderID = readInt();
+                    System.out.println("Invalid ID");
+                    break;
                 case 7:
                     //discount
                     controller.showCurrentlyDiscountedProductsPressed();
+                    break;
                 case 8:
                     //add a new item to the store
                     controller.addProductPressed();
